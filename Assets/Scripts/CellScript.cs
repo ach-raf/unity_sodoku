@@ -11,9 +11,13 @@ public class CellScript : MonoBehaviour, IClickable
 
     private TextMeshProUGUI textField;
 
+    private SpriteRenderer spriteRenderer;
+
     private void Awake()
     {
         textField = GetComponentInChildren<TextMeshProUGUI>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
     }
 
     public void click()
@@ -35,4 +39,15 @@ public class CellScript : MonoBehaviour, IClickable
     {
         textField.text = text;
     }
+
+    public SpriteRenderer GetSpriteRenderer()
+    {
+        return spriteRenderer;
+    }
+
+    public void SetTextColor(Color color)
+    {
+        textField.color = color;
+    }
+
 }

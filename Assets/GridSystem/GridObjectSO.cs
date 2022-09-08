@@ -17,11 +17,10 @@ public class GridObjectSO : ScriptableObject
     public int cellSize;
     public int cellValue;
 
-    public CellScript NorthNeighbour()
+    public GridObjectSO NorthNeighbour()
     {
 
-        //gridReference.GetGridObject(x, z + 1)
-        return gameObject.GetComponent<CellScript>();
+        return gridReference.GetGridObject(x, z + 1);
     }
     public GridObjectSO SouthNeighbour()
     {
@@ -34,6 +33,21 @@ public class GridObjectSO : ScriptableObject
     public GridObjectSO WestNeighbour()
     {
         return gridReference.GetGridObject(x - 1, z);
+    }
+
+    public GridObjectSO GetRandomCell()
+    {
+        return gridReference.GetGridObject(Random.Range(0, gridReference.GetWidth()), Random.Range(0, gridReference.GetHeight()));
+    }
+
+    public CellScript GetNeighbourCellScript(GridObjectSO _neighbour)
+    {
+        return _neighbour.gameObject.GetComponent<CellScript>();
+    }
+
+    public CellScript GetCellScript()
+    {
+        return gameObject.GetComponent<CellScript>();
     }
 
     private SpriteRenderer spriteRenderer;
@@ -81,7 +95,7 @@ public class GridObjectSO : ScriptableObject
 
     public enum CellColors
     {
-        Red,
+        Cyan,
         Green,
         Blue,
         Yellow,
@@ -89,15 +103,17 @@ public class GridObjectSO : ScriptableObject
         Purple,
         White,
         Grey,
-        Black,
+        Magenta,
+
+
     }
 
     public void SetColor(CellColors color)
     {
         switch (color)
         {
-            case CellColors.Red:
-                spriteRenderer.color = Color.red;
+            case CellColors.Cyan:
+                spriteRenderer.color = Color.cyan;
                 break;
             case CellColors.Green:
                 spriteRenderer.color = Color.green;
@@ -120,8 +136,8 @@ public class GridObjectSO : ScriptableObject
             case CellColors.Grey:
                 spriteRenderer.color = Color.grey;
                 break;
-            case CellColors.Black:
-                spriteRenderer.color = Color.black;
+            case CellColors.Magenta:
+                spriteRenderer.color = Color.magenta;
                 break;
         }
     }
@@ -135,7 +151,7 @@ public class GridObjectSO : ScriptableObject
     {
         switch (currentColor)
         {
-            case CellColors.Red:
+            case CellColors.Cyan:
                 return CellColors.Green;
             case CellColors.Green:
                 return CellColors.Blue;
@@ -150,11 +166,11 @@ public class GridObjectSO : ScriptableObject
             case CellColors.White:
                 return CellColors.Grey;
             case CellColors.Grey:
-                return CellColors.Black;
-            case CellColors.Black:
-                return CellColors.Red;
+                return CellColors.Magenta;
+            case CellColors.Magenta:
+                return CellColors.Cyan;
         }
-        return CellColors.Red;
+        return CellColors.Cyan;
     }
 
 }

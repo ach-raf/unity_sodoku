@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     public GridObjectSO tileSO;
 
     public Canvas worldSpaceCanvas;
-    private GridObjectSO.CellColors currentColor = GridObjectSO.CellColors.Red;
+    private GridObjectSO.CellColors currentColor = GridObjectSO.CellColors.Cyan;
     private TextMeshProUGUI textField;
 
 
@@ -56,22 +56,26 @@ public class GridManager : MonoBehaviour
     public void SpawnGridObject(ref GridObjectSO gridObject, int x, int z, GridObjectSO.CellColors currentColor)
     {
         GameObject spawnObject = Instantiate(tileSO.gameObject);
+        CellScript cellScript = spawnObject.GetComponent<CellScript>();
+
         spawnObject.transform.position = gridSO.gridReference.GetWorldPosition2D(x, z);
         spawnObject.transform.SetParent(worldSpaceCanvas.transform);
         spawnObject.name = $"{x}, {z}";
-        spawnObject.GetComponent<SpriteRenderer>().gameObject.name = $"{x}, {z}";
+        cellScript.GetSpriteRenderer().gameObject.name = $"{x}, {z}";
+
         gridObject = gridSO.gridReference.GetGridObject(x, z);
-        gridObject.gameObject = spawnObject;
         gridObject.gridReference = gridSO.gridReference;
         gridObject.x = x;
         gridObject.z = z;
         gridObject.position = new Vector2Int(x, z);
         gridObject.SetColor(currentColor);
-
-        textField = spawnObject.GetComponentInChildren<TextMeshProUGUI>();
-        textField.text = spawnObject.gameObject.name;
+        gridObject.gameObject = spawnObject;
 
         spawnObject.GetComponent<CellScript>().SetGridObjectReference(gridObject);
+
+
+        //cellScript.SetTextField(spawnObject.gameObject.name);
+
 
 
         gridSO.gridReference.SetValue(x, z, gridObject);

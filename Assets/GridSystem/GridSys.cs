@@ -102,6 +102,16 @@ public class GridSys<TGenericType>
         return grid_array.Length;
     }
 
+    public int GetWidth()
+    {
+        return width;
+    }
+
+    public int GetHeight()
+    {
+        return height;
+    }
+
 
 
 

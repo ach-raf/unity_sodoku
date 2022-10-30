@@ -37,6 +37,16 @@ public class CellScript : MonoBehaviour, IClickable
 
     public void SetTextField(string text)
     {
+        textField.outlineWidth = 0.2f;
+        if (textField.color == Color.white)
+        {
+            textField.outlineColor = Color.black;
+        }
+        else
+        {
+
+            textField.outlineColor = Color.white;
+        }
         textField.text = text;
     }
 

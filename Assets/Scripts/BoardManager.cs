@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.IO;
 
 
 public class BoardManager : MonoBehaviour
@@ -15,25 +16,13 @@ public class BoardManager : MonoBehaviour
     private List<int> optionList = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     private List<int> openList;
     private List<int> closedList;
-    private List<int> boardCounter;
     private System.Random random = new System.Random();
 
-    private GridObjectSO previousCellClicked;
     private int backtrackCounter = 0;
-
-    private Task autoFillBoard = null;
 
     private ScreenshotHandler screenShotHandler;
 
-    public void SetGridSystem(GridSystemSO _gridSO)
-    {
-        this.gridSO = _gridSO;
-    }
-
-    public GridSystemSO GetGridSystem()
-    {
-        return gridSO;
-    }
+    private int screenshotCounter = 0;
 
     #endregion
 
@@ -54,34 +43,44 @@ public class BoardManager : MonoBehaviour
 
     private void Awake()
     {
-
-
         screenShotHandler = this.GetComponent<ScreenshotHandler>();
     }
     private void Start()
     {
-        autoFillBoard = new Task(AutoFillBoard(TakeScreenshot));
+
     }
-    public void TakeScreenshot()
+    public void TakeScreenshot(int _screenshotCounter)
+
     {
-        ScreenCapture.CaptureScreenshot("Assets/IconGenerator/Icons/soduku.png");
+        ScreenCapture.CaptureScreenshot(string.Format("Assets/IconGenerator/Icons/soduku{0}.png", _screenshotCounter));
     }
 
     private void CellClicked(CellScript cellClicked)
     {
-        //GridObjectSO gridObjectReference = cellClicked.GetGridObjectReference();
-        //previousCellClicked = gridObjectReference;
+        //AutoFillBoard();
+        Solve();
+    }
 
-        //StartCoroutine(AutoFillBoard());
-
-
-
+    public IEnumerator WaitForSeconds(float _seconds)
+    {
+        yield return new WaitForSeconds(_seconds);
+        screenshotCounter++;
+        if (screenshotCounter < 5)
+        {
+            EventManager.OnStartProgram();
+        }
     }
 
     public void BoardIsReady(GridSystemSO _gridSO)
     {
         gridSO = _gridSO;
-        previousCellClicked = gridSO.gridReference.GetGridObject(0, 0);
+        //CreateGameGridFromJson(1);
+        //ReadJson(1);
+
+        /*Solve();
+        TakeScreenshot(screenshotCounter);
+        SaveListToFile();
+        StartCoroutine(WaitForSeconds(0.1f));*/
     }
 
     public void BackTrack(GridObjectSO cellClicked)
@@ -108,17 +107,6 @@ public class BoardManager : MonoBehaviour
 
                 }
             }
-            /*if (cellClicked.EastNeighbour())
-            {
-                cellClicked = cellClicked.EastNeighbour();
-            }
-            else if (cellClicked.WestNeighbour())
-            {
-                cellClicked = cellClicked.WestNeighbour();
-
-            }*/
-
-
         }
 
         int _x = cellClicked.x;
@@ -134,8 +122,12 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = _y; j < _gridHeight; j++)
             {
-                gridSO.gridReference.GetGridObject(i, j).cellValue = 0;
-                StartCoroutine(SetTextField(cellClicked, 0));
+                GridObjectSO cellReference = gridSO.gridReference.GetGridObject(i, j);
+                if (cellReference.modifiable)
+                {
+                    cellReference.cellValue = 0;
+                    SetTextField(cellClicked, 0, Color.white);
+                }
 
             }
         }
@@ -145,16 +137,16 @@ public class BoardManager : MonoBehaviour
 
 
 
-    public IEnumerator AutoFillBoard(Action action, int counter = 0)
+    public void AutoFillBoard(int counter = 0)
     {
         bool result = false;
         for (int i = 0; i < gridSO.gridReference.GetWidth(); i++)
         {
             for (int j = 0; j < gridSO.gridReference.GetWidth(); j++)
             {
-                yield return new WaitForSeconds(0.1f);
+
                 GridObjectSO cellClicked = gridSO.gridReference.GetGridObject(i, j);
-                if (cellClicked.cellValue == 0)
+                if (cellClicked.modifiable == true && cellClicked.cellValue == 0)
                 {
                     openList = new List<int>(optionList);
                     closedList = new List<int>();
@@ -167,21 +159,18 @@ public class BoardManager : MonoBehaviour
                         {
                             break;
                         }
-                        Task autoFillBoard = new Task(AutoFillBoard(action, counter));
-                        //StartCoroutine(AutoFillBoard(counter));
+                        AutoFillBoard(counter);
 
                     }
                 }
 
             }
         }
-        action();
-
 
     }
 
 
-    public bool IsValid(GridObjectSO cellClicked, int value)
+    public bool IsValidMove(GridObjectSO cellClicked, int value)
     {
         bool northLogic = NorthLogic(cellClicked, value);
         bool southLogic = SouthLogic(cellClicked, value);
@@ -199,27 +188,19 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public IEnumerator SetTextField(GridObjectSO cellClicked, int value)
+    public void SetTextField(GridObjectSO cellClicked, int value, Color color)
     {
-        yield return new WaitForSeconds(0.1f);
 
         if (value == 0)
         {
             cellClicked.cellValue = 0;
-            cellClicked.GetCellScript().SetTextField("X");
-            cellClicked.GetCellScript().SetTextColor(Color.red);
+            cellClicked.GetCellScript().SetTextField("");
         }
         else
         {
             cellClicked.cellValue = value;
             cellClicked.GetCellScript().SetTextField(value.ToString());
-            cellClicked.GetCellScript().SetTextColor(Color.red);
-        }
-        yield return new WaitForSeconds(0.1f);
-        if (cellClicked != previousCellClicked)
-        {
-            previousCellClicked.GetCellScript().SetTextColor(Color.white);
-            previousCellClicked = cellClicked;
+            cellClicked.GetCellScript().SetTextColor(color);
         }
 
     }
@@ -238,13 +219,13 @@ public class BoardManager : MonoBehaviour
             }
             index = random.Next(openList.Count);
             value = openList[index];
-            isValid = IsValid(cellClicked, value);
+            isValid = IsValidMove(cellClicked, value);
             counter++;
         }
         if (isValid)
         {
             cellClicked.cellValue = value;
-            StartCoroutine(SetTextField(cellClicked, value));
+            SetTextField(cellClicked, value, Color.white);
             closedList.Add(value);
             openList.Remove(value);
             return true;
@@ -441,7 +422,143 @@ public class BoardManager : MonoBehaviour
         return true;
     }
 
+    public void SaveListToFile(int _screenshotCounter)
+    {
+        string path = string.Format("{0}/IconGenerator/Icons/soduku{1}.json", Application.dataPath, _screenshotCounter);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+        CellBasicInfo cellBasicInfo = new CellBasicInfo();
+        List<string> lines = new List<string>();
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                GridObjectSO gridObject = gridSO.gridReference.GetGridObject(i, j);
+                if (gridObject)
+                {
+                    cellBasicInfo.x = i;
+                    cellBasicInfo.z = j;
+                    cellBasicInfo.value = gridObject.cellValue;
+                    lines.Add(cellBasicInfo.ToString());
+                }
+            }
+        }
+        File.AppendAllLines(path, lines);
 
+    }
+
+    public void ReadJson(int _screenshotNumber)
+    {
+        string path = string.Format("{0}/IconGenerator/Icons/soduku{1}.json", Application.dataPath, _screenshotNumber);
+        if (File.Exists(path))
+        {
+            string[] lines = File.ReadAllLines(path);
+            foreach (string line in lines)
+            {
+                CellBasicInfo cellBasicInfo = JsonUtility.FromJson<CellBasicInfo>(line);
+                GridObjectSO gridObject = gridSO.gridReference.GetGridObject(cellBasicInfo.x, cellBasicInfo.z);
+                if (gridObject)
+                {
+                    gridObject.x = cellBasicInfo.x;
+                    gridObject.z = cellBasicInfo.z;
+                    gridObject.cellValue = cellBasicInfo.value;
+                    gridObject.modifiable = false;
+                    SetTextField(gridObject, cellBasicInfo.value, Color.red);
+                }
+            }
+        }
+
+
+    }
+
+    public GridObjectSO FindEmpty()
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                GridObjectSO gridObject = gridSO.gridReference.GetGridObject(i, j);
+                if (gridObject && gridObject.modifiable && gridObject.cellValue == 0)
+                {
+                    return gridObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    public bool Solve()
+    {
+        List<int> _choises = new List<int>(optionList);
+
+
+        /*
+        '''Solves the Sudoku board via the backtracking algorithm'''
+        */
+        GridObjectSO emptyGridObject = FindEmpty();
+        if (emptyGridObject == null)
+        {
+            return true;
+        }
+
+        while (_choises.Count != 0)
+        {
+            int _index = random.Next(_choises.Count);
+            int _value = _choises[_index];
+            if (IsValidMove(emptyGridObject, _value))
+            {
+                emptyGridObject.cellValue = _value;
+                _choises.Remove(_value);
+                SetTextField(emptyGridObject, _value, Color.white);
+                //backtracking here, leave the cell emptyGridObject empty for now if solve is false. 
+                if (Solve())
+                {
+                    return true;
+                }
+
+                emptyGridObject.cellValue = 0;
+                SetTextField(emptyGridObject, 0, Color.white);
+            }
+            _choises.Remove(_value);
+        }
+        return false;
+    }
+
+    public void PrintList(List<int> _list)
+    {
+        string _string = "";
+        foreach (int i in _list)
+        {
+            _string += i.ToString() + " ";
+        }
+        Debug.Log(_string);
+    }
+
+    public void CreateGameGridFromJson(int _screenshotNumber)
+    {
+        string path = string.Format("{0}/IconGenerator/Icons/soduku{1}.json", Application.dataPath, _screenshotNumber);
+        if (File.Exists(path))
+        {
+            string[] lines = File.ReadAllLines(path);
+            List<string> tempList = new List<string>(lines);
+            int _length = tempList.Count;
+            for (int i = 0; i < _length - 26; i++)
+            {
+                int _index = random.Next(tempList.Count);
+                tempList.RemoveAt(_index);
+            }
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            File.AppendAllLines(path, tempList.ToArray());
+        }
+    }
 
 
 }
+
+
+

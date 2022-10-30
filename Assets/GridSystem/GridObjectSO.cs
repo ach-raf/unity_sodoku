@@ -17,22 +17,39 @@ public class GridObjectSO : ScriptableObject
     public int cellSize;
     public int cellValue;
 
+    public bool modifiable;
+
     public GridObjectSO NorthNeighbour()
     {
-
-        return gridReference.GetGridObject(x, z + 1);
+        if (gridReference != null)
+        {
+            return gridReference.GetGridObject(x, z + 1);
+        }
+        return null;
     }
     public GridObjectSO SouthNeighbour()
     {
-        return gridReference.GetGridObject(x, z - 1);
+        if (gridReference.GetGridObject(x, z - 1) != null)
+        {
+            return gridReference.GetGridObject(x, z - 1);
+        }
+        return null;
     }
     public GridObjectSO EastNeighbour()
     {
-        return gridReference.GetGridObject(x + 1, z);
+        if (gridReference.GetGridObject(x + 1, z) != null)
+        {
+            return gridReference.GetGridObject(x + 1, z);
+        }
+        return null;
     }
     public GridObjectSO WestNeighbour()
     {
-        return gridReference.GetGridObject(x - 1, z);
+        if (gridReference.GetGridObject(x - 1, z) != null)
+        {
+            return gridReference.GetGridObject(x - 1, z);
+        }
+        return null;
     }
 
     public GridObjectSO GetRandomCell()
@@ -71,9 +88,10 @@ public class GridObjectSO : ScriptableObject
         x = gridObject.x;
         z = gridObject.z;
         cellValue = gridObject.cellValue;
+        modifiable = gridObject.modifiable;
     }
 
-    public GridObjectSO InitializeGridObject(GridSys<GridObjectSO> grid, int x, int y, int z)
+    public GridObjectSO InitializeGridObject(GridSys<GridObjectSO> grid, int x, int y, int z, bool _modifiable = true)
     {
         gridReference = grid;
         position = new Vector2Int(x, z);
@@ -81,16 +99,18 @@ public class GridObjectSO : ScriptableObject
         this.y = y;
         this.z = z;
         cellValue = 0;
+        modifiable = _modifiable;
         return this;
     }
 
     public void EmptyGridObject()
     {
-        gridReference = null;
-        position = new Vector2Int(-1, -1);
+        //gridReference = null;
+        //position = new Vector2Int(-1, -1);
         x = -1;
         z = -1;
         cellValue = 0;
+        GetCellScript().SetTextField("");
     }
 
     public enum CellColors
@@ -171,6 +191,11 @@ public class GridObjectSO : ScriptableObject
                 return CellColors.Cyan;
         }
         return CellColors.Cyan;
+    }
+
+    public override string ToString()
+    {
+        return "x: " + x + " z: " + z + "cellValue: " + cellValue;
     }
 
 }

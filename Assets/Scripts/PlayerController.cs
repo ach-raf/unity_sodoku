@@ -28,6 +28,14 @@ public class PlayerController : MonoBehaviour
 
     private void LeftClicked(InputAction.CallbackContext context)
     {
-        MouseOperations.ClickedObject2D().click();
+        /*if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }*/
+        if (MouseOperations.ClickedObject2D() != null)
+        {
+            MouseOperations.ClickedObject2D().click();
+        }
+
     }
 }

@@ -1,5 +1,5 @@
 {
-    "name": "Player Controls",
+    "name": "PlayerControls",
     "maps": [
         {
             "name": "Player",
@@ -25,7 +25,7 @@
                 },
                 {
                     "name": "Fire",
-                    "type": "Button",
+                    "type": "PassThrough",
                     "id": "c85fc92b-8b2a-4fea-95ca-c6d7c5107a40",
                     "expectedControlType": "Button",
                     "processors": "",
@@ -250,6 +250,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f187d52-3a92-4a33-b3d7-fd777d8b46d2",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
                     "action": "Fire",
                     "isComposite": false,
                     "isPartOfComposite": false

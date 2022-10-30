@@ -1,5 +1,5 @@
 using System;
-using UnityEngine.Events;
+
 
 public static class EventManager
 {
@@ -8,4 +8,10 @@ public static class EventManager
 
     public static event Action<GridSystemSO> boardIsReady;
     public static void OnBoardIsReady(GridSystemSO _gridSO) => boardIsReady?.Invoke(_gridSO);
+
+
+    public static event Action startProgram;
+    public static void OnStartProgram() => startProgram?.Invoke();
+
+
 }

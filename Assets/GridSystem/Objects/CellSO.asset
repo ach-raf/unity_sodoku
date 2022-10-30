@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a07645010df6f843aa6a96a061b0e77, type: 3}
   m_Name: CellSO
   m_EditorClassIdentifier: 
-  gameObject: {fileID: 6808105344117145690, guid: 95896be8858a54d47984027de71b28e9, type: 3}
+  gameObject: {fileID: 6808105344117145690, guid: a118ca8d64db5e740b63bc35b631ecb3, type: 3}
   position: {x: 0, y: 0}
   x: 0
   y: 0
   z: 0
   cellSize: 1
   cellValue: 0
+  modifiable: 0

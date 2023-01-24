@@ -16,5 +16,5 @@ MonoBehaviour:
   x: 9
   y: 9
   z: 9
-  cellSize: 1
+  cellSize: 2
   originPosition: {x: 0, y: 0, z: 0}
